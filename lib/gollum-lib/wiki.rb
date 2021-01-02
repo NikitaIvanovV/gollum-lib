@@ -736,7 +736,7 @@ module Gollum
         raise NoDwdiffFound
       end
 
-      pipe.write(diff_string)
+      pipe.write_nonblock(diff_string)
       pipe.close_write
       word_diff_string = pipe.read
       pipe.close
