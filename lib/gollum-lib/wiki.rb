@@ -2,6 +2,9 @@
 require 'pathname'
 
 module Gollum
+
+  class NoDwdiffFound < StandardError; end
+
   class Wiki
     include Pagination
 
@@ -80,6 +83,9 @@ module Gollum
     # Global metadata to be merged into the metadata for each page
     attr_reader :metadata
 
+    # Path to dwdiff program
+    attr_reader :dwdiff_path
+
     # Public: Initialize a new Gollum Repo.
     #
     # path    - The String path to the Git repository that holds the Gollum
@@ -129,6 +135,8 @@ module Gollum
       @repo                 = @access.repo
       @ref                  = options.fetch :ref, self.class.default_ref
       @universal_toc        = options.fetch :universal_toc, false
+      @word_diff            = options.fetch :word_diff, false
+      @dwdiff_path          = options[:dwdiff_path] || 'dwdiff'
       @mathjax              = options.fetch :mathjax, false
       @global_tag_lookup    = options.fetch :global_tag_lookup, false
       @hyphened_tag_lookup  = options.fetch :hyphened_tag_lookup, false
@@ -702,7 +710,38 @@ module Gollum
       @sanitizer ||= Gollum::Sanitization.new(Gollum::Markup.to_xml_opts)
     end
 
+    # Public: Creates a diff string depending on word-diff setting
+    #
+    # Returns a diff String.
+    def diff(*args)
+      if @word_diff
+        word_diff *args
+      else
+        @repo.diff *args
+      end
+    end
+
     private
+
+    def word_diff(*args)
+      return dwdiff(@dwdiff_path, @repo.diff(*args))
+    end
+
+    def dwdiff(dwdiff_path, diff_string)
+      cmd = [@dwdiff_path, '--diff-input', '--no-profile', '--repeat-markers']
+
+      begin
+        pipe = IO.popen(cmd, "r+")
+      rescue Errno::ENOENT
+        raise NoDwdiffFound
+      end
+
+      pipe.write(diff_string)
+      pipe.close_write
+      word_diff_string = pipe.read
+      pipe.close
+      return word_diff_string
+    end
 
     def parse_revert_options(sha1, sha2, commit = {})
       if sha2.is_a?(Hash)
