@@ -740,7 +740,7 @@ module Gollum
       pipe.close_write
       word_diff_string = pipe.read
       pipe.close
-      return word_diff_string
+      return word_diff_string.force_encoding("utf-8")
     end
 
     def parse_revert_options(sha1, sha2, commit = {})
