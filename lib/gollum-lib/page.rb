@@ -6,7 +6,7 @@ module Gollum
     SUBPAGENAMES = [:header, :footer, :sidebar]
 
     class << self
-      # For use with self.find: returns true if the given query corresponds to the in-repo path of the BlobEntry. 
+      # For use with self.find: returns true if the given query corresponds to the in-repo path of the BlobEntry.
       #
       # query     - The String path to match.
       # entry     - The BlobEntry to check against.
@@ -14,7 +14,7 @@ module Gollum
       def path_match(query, entry, global_match = false, hyphened_tags = false, case_insensitive = false)
         return false if "#{entry.name}".empty?
         return false unless valid_extension?(entry.name)
-        entry_name = valid_extension?(query) ? entry.name : strip_filename(entry.name)     
+        entry_name = valid_extension?(query) ? entry.name : strip_filename(entry.name)
         match_path = ::File.join([
           '/',
           global_match ? nil : entry.dir,
@@ -136,7 +136,7 @@ module Gollum
 
     # Public: Whether or not to display the metadata
     def display_metadata?
-      return false if (metadata.keys - ['title', 'header_enum']).empty?
+      return false if (metadata.keys - ['title', 'header_enum', 'quest']).empty?
       return false if metadata['display_metadata'] == false
       @wiki.display_metadata
     end
@@ -358,7 +358,7 @@ module Gollum
     attr_accessor :path
 
     def initialize(wiki, name, data, version, parent_page = nil)
-      @wiki           = wiki 
+      @wiki           = wiki
       @path           = name
       @blob           = OpenStruct.new(:name => name, :data => wiki.normalize(data), :is_symlink => false)
       @version        = version
