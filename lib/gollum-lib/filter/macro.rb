@@ -11,11 +11,12 @@ class Gollum::Filter::Macro < Gollum::Filter
     arg = %r{(?:#{quoted_arg}|#{unquoted_arg}|#{named_arg})}
     arg_list = %r{(\s*|#{arg}(?:\s*,\s*#{arg})*)}
 
-    data.gsub(/('?)\<\<\s*([A-Z][A-Za-z0-9]*)\s*\(#{arg_list}\)\s*\>\>/) do
+    data.gsub(/('?)\<\<\s*([A-Z][A-Za-z0-9]*)\s*(?:\(#{arg_list}\))?\s*\>\>/) do
       next CGI.escape_html($&[1..-1]) unless Regexp.last_match[1].empty?
-      id = "#{open_pattern}#{Digest::SHA1.hexdigest(Regexp.last_match[2] + Regexp.last_match[3])}#{close_pattern}"
       macro = Regexp.last_match[2]
       argstr = Regexp.last_match[3]
+      argstr = "" if argstr.nil?
+      id = "#{open_pattern}#{Digest::SHA1.hexdigest(macro + argstr)}#{close_pattern}"
       args = []
       opts = {}
       
