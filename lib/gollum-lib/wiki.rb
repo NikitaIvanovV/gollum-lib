@@ -544,6 +544,11 @@ module Gollum
       @repo.log(@ref, page_file_dir, options)
     end
 
+    def user_changes(username, options={})
+      options[:filter] = lambda { |commit| commit.author[:name] == username }
+      latest_changes(options)
+    end
+
     # Public: Refreshes just the cached Git reference data.  This should
     # be called after every Gollum update.
     #
