@@ -159,13 +159,14 @@ module Gollum
     # encoding - Encoding Constant or String.
     #
     # Returns the String data.
-    def formatted_data(encoding = nil, include_levels = 10, &block)
+    def formatted_data(encoding = nil, include_levels = nil, template_args = nil, &block)
       return nil unless @blob
+      include_levels = include_levels || 10
 
       if @formatted_data && @doc then
         yield @doc if block_given?
       else
-        @formatted_data = markup.render(historical?, encoding, include_levels) do |doc|
+        @formatted_data = markup.render(historical?, encoding, include_levels, template_args) do |doc|
           @doc = doc
           yield doc if block_given?
         end

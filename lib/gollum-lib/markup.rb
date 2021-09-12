@@ -72,6 +72,7 @@ module Gollum
     attr_reader :format
     attr_reader :wiki
     attr_reader :page
+    attr_reader :template_args
     attr_reader :parent_page
     attr_reader :sub_page
     attr_reader :name
@@ -85,16 +86,17 @@ module Gollum
     #
     # Returns a new Gollum::Markup object, ready for rendering.
     def initialize(page)
-      @wiki        = page.wiki
-      @name        = page.filename
-      @data        = page.text_data
-      @version     = page.version.id if page.version
-      @format      = page.format
-      @sub_page    = page.sub_page
-      @parent_page = page.parent_page
-      @page        = page
-      @dir         = ::File.dirname("/#{@page.url_path}")
-      @metadata    = nil
+      @wiki          = page.wiki
+      @name          = page.filename
+      @data          = page.text_data
+      @version       = page.version.id if page.version
+      @format        = page.format
+      @sub_page      = page.sub_page
+      @parent_page   = page.parent_page
+      @page          = page
+      @dir           = ::File.dirname("/#{@page.url_path}")
+      @metadata      = nil
+      @template_args = nil
     end
 
     # Whether or not this markup's format uses reversed-order links ([description | url] rather than [url | description]). Defaults to false.
@@ -147,10 +149,11 @@ module Gollum
     # encoding  - Encoding Constant or String.
     #
     # Returns the formatted String content.
-    def render(no_follow = false, encoding = nil, include_levels = 10, &block)
+    def render(no_follow = false, encoding = nil, include_levels = 10, template_args = nil, &block)
       @historical     = no_follow
       @encoding       = encoding
       @include_levels = include_levels
+      @template_args  = template_args
 
       data = @data.dup
 
