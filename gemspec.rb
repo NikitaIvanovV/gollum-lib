@@ -8,7 +8,7 @@ def specification(version, default_adapter, platform = nil)
     s.name              = 'gollum-lib'
     s.version           = version
     s.platform          = platform if platform
-    s.date              = '2021-09-12'
+    s.date              = '2021-09-06'
     s.date              = '2017-04-13'
     s.rubyforge_project = 'gollum-lib'
     s.license           = 'MIT'
@@ -29,7 +29,7 @@ def specification(version, default_adapter, platform = nil)
     s.add_dependency 'rouge', '~> 3.1'
     s.add_dependency 'nokogiri', '~> 1.8'
     s.add_dependency 'loofah', '~> 2.3'
-    s.add_dependency 'github-markup', '~> 3.0'
+    s.add_dependency 'github-markup', '~> 4.0'
     s.add_dependency 'gemojione', '~> 4.1'
     s.add_dependency 'octicons', '~> 12.0'
     s.add_dependency 'twitter-text', '1.14.7'

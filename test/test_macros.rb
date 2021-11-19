@@ -41,13 +41,13 @@ context "Macros" do
 
   test "GlobalTOC macro displays global table of contents" do
     @wiki.write_page("GlobalTOCMacroPage", :markdown, "<<GlobalTOC(Pages in this Wiki)>>", commit_details)
-    assert_match /<div class="toc">(.*)Pages in this Wiki(.*)<li><a href="\/GlobalTOCMacroPage.md">GlobalTOCMacroPage.md/, @wiki.pages[0].formatted_data
+    assert_match /<div class="toc">(.*)Pages in this Wiki(.*)<li><a href="\/GlobalTOCMacroPage.md" rel="nofollow">GlobalTOCMacroPage.md/, @wiki.pages[0].formatted_data
   end
 
   test "Navigation macro displays table of contents for subpath" do
     @wiki.write_page("NavigationMacroPage", :markdown, "<<Navigation()>>", commit_details)
     @wiki.write_page("ZZZZ/A", :markdown, "content", commit_details)
-    assert_match /<div class="toc"><div class="toc-title">Navigate this directory<\/div><ul><li><a href="\/NavigationMacroPage.md">NavigationMacroPage.md<\/a><\/li><li><a href="\/ZZZZ\/A\.md">ZZZZ\/A\.md<\/a><\/li><\/ul><\/div>/, @wiki.pages[0].formatted_data
+    assert_match /<div class="toc"><div class="toc-title">Navigate this directory<\/div><ul><li><a href="\/NavigationMacroPage.md" rel="nofollow">NavigationMacroPage.md<\/a><\/li><li><a href="\/ZZZZ\/A\.md" rel="nofollow">ZZZZ\/A\.md<\/a><\/li><\/ul><\/div>/, @wiki.pages[0].formatted_data
   end
 
   test "Series macro displays series links with and without series prefix" do
@@ -148,13 +148,13 @@ context "Macros" do
   test "Video macro given a name of a file displays an html5 video tag" do
     file = "/Uploads/foo.mp4"
     @wiki.write_page("VideoTagTest", :markdown, "<<Video(#{file})>>", commit_details)
-    assert_match /<video (.*) (.*) src="#{file}" (.*)> (.*)<\/video>/, @wiki.pages[0].formatted_data
+    assert_match /<video (.*) src="#{file}"(.*)> (.*)<\/video>/, @wiki.pages[0].formatted_data
   end 
 
   test "Audio macro given a name of a file displays an audio tag" do
     file = "/Uploads/foo.mp3"
     @wiki.write_page("AudioTagTest", :markdown, "<<Audio(#{file})>>", commit_details)
-    assert_match /<audio (.*) (.*) src="#{file}" (.*)> (.*)<\/audio>/, @wiki.pages[0].formatted_data
+    assert_match /<audio (.*) src="#{file}"(.*)> (.*)<\/audio>/, @wiki.pages[0].formatted_data
   end
 
   test "Octicon macro given a symbol and dimensions displays octicon" do
@@ -179,4 +179,20 @@ context "Macros" do
     assert_match /<div class=\"flash flash-error\"><svg.*class=\"octicon octicon-zap mr-2\".*Macro Error for Octicon: Couldn't find octicon symbol for "foobar".*/, @wiki.pages[0].formatted_data
   end
 
+  test "Audio macro escapes HTML" do
+    @wiki.write_page("AudioXSSTest", :markdown, '<<Audio(a"></audio><input>)>>', commit_details)
+    assert_not_match /<input/, @wiki.pages[0].formatted_data
+  end
+
+  test "Note macro renders HTML code" do
+    @wiki.write_page("HTMLNoteMacroPage", :markdown, '<<Note("<span>test</span>")>>', commit_details)
+    assert_match /<div class=\"flash\"><svg.*class=\"octicon octicon-info mr-2\".*<span>test<\/span>.*/, @wiki.pages[0].formatted_data
+  end
+
+  test "Series macro escapes page names" do
+    @wiki.write_page("test-1", :markdown, "test1", commit_details)
+    @wiki.write_page("test-2<span>", :markdown, "test2", commit_details)
+    @wiki.write_page("_Footer", :markdown, "<<Series(test)>>", commit_details)
+    assert_match /Next(.*)test-2&lt;span&gt;/, @wiki.page("test-1").footer.formatted_data
+  end
 end
