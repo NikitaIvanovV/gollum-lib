@@ -18,10 +18,21 @@ module Gollum
         match_path = ::File.join([
           '/',
           global_match ? nil : entry.dir,
-        entry_name
+          entry_name
         ].compact)
-        path_compare(query, match_path, hyphened_tags, case_insensitive)
+        path_compare(query, match_path, hyphened_tags, case_insensitive) || simple_path_compare(query, match_path)
       end
+    end
+
+    def self.simple_path(path)
+      path = remove_extension path
+      path.downcase.gsub(%r{\s+}, '-').gsub(%r{[^/a-z0-9\-_.]}, '')
+    end
+
+    def self.simple_path_compare(query, match_path)
+      final_query = simple_path query
+      final_match = simple_path match_path
+      final_match == final_query
     end
 
     # Checks if a filename has a valid, registered extension
@@ -123,6 +134,15 @@ module Gollum
     # Returns the String title
     def url_path_title
       metadata_title || name
+    end
+
+    # Public: The url_path, but in "simple" format.
+    # All characters except from [^/a-z0-9-_.] are removed,
+    # spaces are replaces with hyphens.
+    #
+    # Returns the String url_path
+    def simple_path
+      self.class.simple_path(self.url_path).force_encoding('utf-8')
     end
 
     # Public: Metadata title

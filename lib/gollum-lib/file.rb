@@ -158,6 +158,10 @@ module Gollum
       ['custom.css', 'custom.js', '.redirects.gollum']
     end
 
+    def self.remove_extension(path)
+      path.sub(/#{::File.extname(path)}$/, '')
+    end
+
     private
 
     # Return the file path to this file on disk, if available.
