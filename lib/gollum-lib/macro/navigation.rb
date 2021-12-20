@@ -9,7 +9,8 @@ module Gollum
           list_items = pages.map do |page|
             if toc_root_path == '.' || page.url_path =~ /^#{toc_root_path}\//
               path_display = (full_path || toc_root_path == '.') ? page.url_path  : page.url_path.sub(/^#{toc_root_path}\//,"").sub(/^\//,'')
-              "<li><a href=\"#{CGI::escapeHTML(prepath + "/" + page.escaped_url_path)}\">#{CGI::escapeHTML(path_display)}</a></li>"
+              path_display = ::Gollum::Page.remove_extension path_display
+              "<li><a href=\"#{CGI::escapeHTML(prepath + "/" + page.simple_path)}\">#{CGI::escapeHTML(path_display)}</a></li>"
             end
           end
           result = "<ul>#{list_items.join}</ul>"
