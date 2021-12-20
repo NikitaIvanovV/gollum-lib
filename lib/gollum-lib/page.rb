@@ -26,7 +26,7 @@ module Gollum
 
     def self.simple_path(path)
       path = remove_extension path
-      path.downcase.gsub(%r{\s+}, '-').gsub(%r{[^/a-z0-9\-_.]}, '')
+      path.downcase.gsub(%r{[^/[:alnum:]\ \-_]}, '').gsub(%r{\s+}, '-')
     end
 
     def self.simple_path_compare(query, match_path)
